@@ -1,0 +1,5 @@
+![daily report](<ss/Screenshot 2025-10-24 092211.png>)
+![checkin](<ss/Screenshot 2025-10-24 092244.png>)
+![checkinsekalilagi](<ss/Screenshot 2025-10-24 092253.png>)
+![checkout](<ss/Screenshot 2025-10-24 092305.png>)
+![checkout lagi](<ss/Screenshot 2025-10-24 092313.png>)
