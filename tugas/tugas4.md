@@ -1,0 +1,5 @@
+![check in](<ss/Screenshot 2025-10-24 094724.png>)
+![checkout](<ss/Screenshot 2025-10-24 094740.png>)
+![hasil check in](<ss/Screenshot 2025-10-24 092945.png>)
+![hasil check out](<ss/Screenshot 2025-10-24 094139.png>)
+![report](<ss/Screenshot 2025-10-24 094943.png>)
