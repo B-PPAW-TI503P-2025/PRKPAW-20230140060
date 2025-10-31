@@ -5,10 +5,5 @@ const { addUserData } = require('../middleware/permissionMiddleware');
 router.use(addUserData);
 router.post('/check-in', presensiController.CheckIn);
 router.post('/check-out', presensiController.CheckOut);
-module.exports = router;
-
-router.post("/check-in", presensiController.CheckIn);
-router.post("/check-out", presensiController.CheckOut);
-
-
 router.delete("/:id", presensiController.deletePresensi);
+module.exports = router;
