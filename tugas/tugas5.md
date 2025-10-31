@@ -1,0 +1,5 @@
+![put untuk update](<ss5/Screenshot 2025-10-31 092836.png>)
+![ update jika format tanggal yang diisi tidak valid](<ss5/Screenshot 2025-10-31 100529.png>)
+![delete data](<ss5/Screenshot 2025-10-31 092907.png>)
+![search berdasarkan nama](<ss5/Screenshot 2025-10-31 100703.png>)
+![search berdasarkan tanggal](<ss5/Screenshot 2025-10-31 101821.png>)
