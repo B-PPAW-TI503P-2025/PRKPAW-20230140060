@@ -1,6 +1,13 @@
 const {Presensi } = require("../models");
 const{ Op } = require("sequelize");
 
+exports.getMyReport = async (req, res) => {
+  try {
+    res.status(200).json({ message: 'Ini adalah laporan Anda' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 exports.getDailyReport = async (req, res) => {
   try {
         const { nama, startDate, endDate } = req.query; // Ambil semua parameter
