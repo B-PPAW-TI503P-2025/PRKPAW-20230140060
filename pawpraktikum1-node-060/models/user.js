@@ -4,14 +4,13 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+   
     static associate(models) {
-      // Definisikan relasi di sini jika ada
-      // Contoh: User.hasMany(models.Presensi, { foreignKey: 'userId' });
+      
+      this.hasMany(models.Presensi, {
+        foreignKey: 'userId', 
+        as: 'presensi'        
+      });
     }
   }
   User.init({
@@ -24,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true 
+        isEmail: true
       }
     },
     password: {
@@ -32,11 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     role: {
-      type: DataTypes.ENUM('mahasiswa', 'admin'), 
+      type: DataTypes.ENUM('mahasiswa', 'admin'),
       allowNull: false,
       defaultValue: 'mahasiswa',
       validate: {
-        isIn: [['mahasiswa', 'admin']] 
+        isIn: [['mahasiswa', 'admin']]
       }
     }
   }, {

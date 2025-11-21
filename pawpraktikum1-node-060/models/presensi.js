@@ -4,31 +4,37 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Presensi extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  
     static associate(models) {
-      // define association here
+  
+      this.belongsTo(models.User, {
+        foreignKey: 'userId', 
+        as: 'user'           
+      });
     }
   }
   Presensi.init({
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      
+      references: {
+        model: 'Users', 
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
     },
-    nama: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+   
+    
     checkIn: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE, 
       allowNull: false,
+      defaultValue: DataTypes.NOW 
     },
     checkOut: {
-      type: DataTypes.DATE,
-      allowNull: true, // Boleh null
+      type: DataTypes.DATE, 
+      allowNull: true,      
     }
   }, {
     sequelize,
