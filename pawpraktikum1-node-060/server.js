@@ -3,6 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); // <-- Import JWT
 const { User } = require('./models');
 const app = express();
+const path = require('path'); 
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Middleware Wajib: Untuk membaca JSON dari body request
 app.use(express.json());

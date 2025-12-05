@@ -1,173 +1,65 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, AlertCircle, CheckCircle, Shield } from 'lucide-react';
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    nama: '',
-    email: '',
-    password: '',
-    role: 'mahasiswa' // Default role
-  });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: ''
     });
-  };
+    const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
 
-    try {
-      // Mengirim data ke endpoint POST /api/auth/register
-      await axios.post('http://localhost:3001/api/auth/register', formData);
-      
-      setSuccess('Registrasi berhasil! Mengalihkan ke halaman login...');
-      
-      // Redirect ke login setelah 2 detik
-      setTimeout(() => {
+    const handleRegister = (e) => {
+        e.preventDefault();
+        // TODO: Sambungkan ke API Backend di sini
+        console.log("Data Register:", formData);
+        
+        alert("Registrasi Berhasil! Silakan Login.");
         navigate('/login');
-      }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Gagal melakukan registrasi');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
-        <div className="text-center mb-8">
-          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserPlus className="w-8 h-8 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Daftar Akun Baru</h2>
-          <p className="text-sm text-gray-600 mt-2">Silakan lengkapi data diri Anda</p>
+    // Style sederhana (Inline CSS)
+    const styles = {
+        container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f4f4' },
+        card: { background: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' },
+        inputGroup: { marginBottom: '1rem' },
+        label: { display: 'block', marginBottom: '0.5rem' },
+        input: { width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }, // box-sizing penting agar padding tidak merusak lebar
+        button: { width: '100%', padding: '0.75rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }
+    };
+
+    return (
+        <div style={styles.container}>
+            <div style={styles.card}>
+                <h2 style={{textAlign: 'center'}}>Daftar Akun</h2>
+                <form onSubmit={handleRegister}>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Nama Lengkap</label>
+                        <input type="text" name="name" style={styles.input} onChange={handleChange} required />
+                    </div>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Email</label>
+                        <input type="email" name="email" style={styles.input} onChange={handleChange} required />
+                    </div>
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Password</label>
+                        <input type="password" name="password" style={styles.input} onChange={handleChange} required />
+                    </div>
+                    <button type="submit" style={styles.button}>Register</button>
+                </form>
+                <p style={{textAlign: 'center', marginTop: '1rem'}}>
+                    Sudah punya akun? <Link to="/login">Login di sini</Link>
+                </p>
+            </div>
         </div>
-
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 flex items-center">
-            <AlertCircle className="text-red-500 mr-2" size={20} />
-            <p className="text-red-700 text-sm">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 flex items-center">
-            <CheckCircle className="text-green-500 mr-2" size={20} />
-            <p className="text-green-700 text-sm">{success}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-6">
-          {/* Field Nama */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="nama"
-                type="text"
-                required
-                value={formData.nama}
-                onChange={handleChange}
-                className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Nama Lengkap Anda"
-              />
-            </div>
-          </div>
-
-          {/* Field Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="email@contoh.com"
-              />
-            </div>
-          </div>
-
-          {/* Field Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          {/* Field Role (Baru) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role Pengguna</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Shield className="h-5 w-5 text-gray-400" />
-              </div>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="pl-10 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="mahasiswa">Mahasiswa</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-              ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
-          >
-            {loading ? 'Memproses...' : 'Daftar Sekarang'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Sudah punya akun?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Login disini
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default RegisterPage;

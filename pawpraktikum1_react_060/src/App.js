@@ -1,5 +1,7 @@
-// Ini artinya: Ambil file Navbar.js dan beri nama variabel 'Navbar'
-import navbar from './components/navbar';
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/navbar'; 
+import PrivateRoute from './components/PrivateRoute';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import PresensiPage from './components/presensipage';

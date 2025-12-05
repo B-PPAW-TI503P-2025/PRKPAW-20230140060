@@ -1,59 +1,58 @@
-const {Presensi } = require("../models");
-const{ Op } = require("sequelize");
+const { Presensi, User } = require('../models');
+const { Op } = require('sequelize');
+const { format } = require('date-fns-tz');
+const timeZone = "Asia/Jakarta";
 
-exports.getMyReport = async (req, res) => {
-  try {
-    res.status(200).json({ message: 'Ini adalah laporan Anda' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 exports.getDailyReport = async (req, res) => {
-  try {
-        const { nama, startDate, endDate } = req.query; // Ambil semua parameter
-        let options = { where: {} };
+    try {
+        const { nama, tanggalMulai, tanggalSelesai } = req.query;
+        let options = { 
+            where: {},
+            include: [
+                { 
+                    model: User, 
+                    as: 'user', 
+                    attributes: ['nama'] 
+                }
+            ]
+        };
 
-        // 1. Logika Filter Rentang Tanggal
-        if (startDate && endDate) {
-            // Validasi sederhana sudah dilakukan dengan pengecekan keberadaan
-            options.where.checkIn = {
-                // Filter berdasarkan kolom 'checkIn' (asumsi kolom ini menyimpan waktu presensi)
-                [Op.gte]: new Date(startDate), // Mulai dari awal startDate
-                [Op.lte]: new Date(`${endDate} 23:59:59`) // Sampai akhir endDate
+        if (nama) {
+            options.include[0].where = { 
+                nama: {
+                    [Op.like]: `%${nama}%`
+                }
             };
-            
-            // Jika ada rentang tanggal, kita akan menyesuaikan pesan respons
-            // dan tidak menggunakan toLocaleDateString()
-            
         }
 
-        // 2. Logika Filter Nama (bekerja bersama filter tanggal jika ada)
-        if (nama) {
-            options.where.nama = {
-                [Op.like]: `%${nama}%`,
+        if (tanggalMulai && tanggalSelesai) {
+            const endDate = new Date(tanggalSelesai);
+            endDate.setDate(endDate.getDate() + 1);
+
+            options.where.checkIn = {
+                [Op.between]: [
+                    new Date(tanggalMulai),
+                    endDate
+                ]
             };
         }
 
         const records = await Presensi.findAll(options);
-        
-        // 3. Penyesuaian Respon berdasarkan query yang digunakan
-        let reportDateMessage;
-        if (startDate && endDate) {
-            reportDateMessage = `Laporan Presensi dari ${startDate} hingga ${endDate}`;
-        } else {
-            reportDateMessage = new Date().toLocaleDateString();
-        }
 
-        res.json({
-            reportDate: reportDateMessage,
-            data: records,
-            count: records.length // Menambahkan jumlah data
+        const formattedRecords = records.map(record => ({
+            userId: record.userId,
+            nama: record.user ? record.user.nama : 'User Dihapus',
+            checkIn: format(record.checkIn, 'yyyy-MM-dd HH:mm:ss', { timeZone }),
+            checkOut: record.checkOut ? format(record.checkOut, 'yyyy-MM-dd HH:mm:ss', { timeZone }) : 'N/A'
+        }));
+
+        res.status(200).json({
+            message: "Laporan presensi berhasil diambil",
+            count: formattedRecords.length,
+            data: formattedRecords,
         });
-        
+
     } catch (error) {
-        console.error("Error in getDailyReport:", error); 
-        res
-            .status(500)
-            .json({ message: "Gagal mengambil laporan", error: error.message });
+        res.status(500).json({ message: "Terjadi kesalahan pada server", error: error.message });
     }
-  };
+};
