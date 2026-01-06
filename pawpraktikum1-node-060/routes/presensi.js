@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const presensiController = require('../controllers/presensiController'); // Pastikan nama file controller sesuai
-const { authenticateToken, isAdmin } = require('../middleware/permissionMiddleware'); // Import middleware
+const presensiController = require('../controllers/presensiController');
+const { authenticateToken } = require('../middleware/permissionMiddleware');
 
-// User biasa melakukan Check-in (Harus login / authenticateToken)
-router.post('/checkin', authenticateToken, presensiController.checkIn);
 
-// User biasa melakukan Check-out (Harus login)
-router.post('/checkout', authenticateToken, presensiController.checkOut);
+router.use(authenticateToken);
 
-// Admin melihat laporan/history (Harus login DAN admin)
-router.get('/history', authenticateToken, isAdmin, presensiController.getHistory);
+
+router.post('/check-in', presensiController.upload.single('image'), presensiController.CheckIn);
+
+// 3. Route Lainnya
+router.post('/check-out', presensiController.CheckOut);
+router.delete('/:id', presensiController.deletePresensi);
+router.put('/:id', presensiController.updatePresensi);
 
 module.exports = router;

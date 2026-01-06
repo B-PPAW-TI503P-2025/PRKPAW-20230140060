@@ -1,64 +1,57 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import LoginPage from "./components/LoginPage";
+import RegisterPage from "./components/RegisterPage";
+import DashboardPage from "./components/DashboardPage";
+import AttendancePage from "./components/AttendancePage";
+import ReportPage from "./components/ReportPage";
+import Navbar from "./components/Navbar";
+import "leaflet/dist/leaflet.css";
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/navbar'; 
-import PrivateRoute from './components/PrivateRoute';
-import LoginPage from './components/LoginPage';
-import RegisterPage from './components/RegisterPage';
-import PresensiPage from './components/presensipage';
-import ReportPage from './components/reportpage';
-import DashboardPage from './components/DashboardPage';
+const MainLayout = ({ children }) => {
+  return (
+    <div>
+      <Navbar />
+      <main>{children}</main>
+    </div>
+  );
+};
 
-const App = () => {
- 
-
+function App() {
   return (
     <Router>
-      <div className="...">
-        <Navbar /> {}
-        
+      <div>
         <Routes>
-          {/* Mendaftarkan halaman Login */}
           <Route path="/login" element={<LoginPage />} />
-
-          {/* Mendaftarkan halaman Register */}
           <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Mendaftarkan halaman Dashboard (Privat) */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
-              <PrivateRoute>
+              <MainLayout>
                 <DashboardPage />
-              </PrivateRoute>
-            } 
+              </MainLayout>
+            }
           />
-          
-          {/* Mendaftarkan halaman Presensi (Privat) */}
-          <Route 
-            path="/presensi" 
+          <Route
+            path="/presensi"
             element={
-              <PrivateRoute>
-                <PresensiPage />
-              </PrivateRoute>
-            } 
+              <MainLayout>
+                <AttendancePage />
+              </MainLayout>
+            }
           />
-
-          {/* Mendaftarkan halaman Laporan (Privat & Admin Only) */}
-          <Route 
-            path="/reports" 
+          <Route
+            path="/reports"
             element={
-              <PrivateRoute adminOnly={true}>
+              <MainLayout>
                 <ReportPage />
-              </PrivateRoute>
-            } 
+              </MainLayout>
+            }
           />
-
-          {/* Redirect default */}
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<LoginPage />} />
         </Routes>
       </div>
     </Router>
   );
-};
-
+}
 export default App;

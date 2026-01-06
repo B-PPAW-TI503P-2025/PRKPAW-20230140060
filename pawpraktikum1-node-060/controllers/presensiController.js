@@ -25,17 +25,22 @@ exports.upload = multer({ storage: storage, fileFilter: fileFilter });
  
  exports.CheckIn = async (req, res) => {
   try {
-    const { id: userId } = req.user;
-    const { latitude, longitude } = req.body; // <-- Ambil data lokasi
+    const { id: userId, nama: userName } = req.user;
+ 	    const waktuSekarang = new Date();
+		const { latitude, longitude} = req.body
 
     const buktiFoto = req.file ? req.file.path : null; 
 
  
-     if (existingRecord) {
-       return res
-         .status(400)
-         .json({ message: "Anda sudah melakukan check-in hari ini." });
-     }
+     const existingRecord = await Presensi.findOne({
+ 	      where: { userId: userId, checkOut: null },
+ 	    });
+ 	
+ 	    if (existingRecord) {
+ 	      return res
+ 	        .status(400)
+ 	        .json({ message: "Anda sudah melakukan check-in hari ini." });
+ 	    }
  
      const newRecord = await Presensi.create({
       userId: userId,

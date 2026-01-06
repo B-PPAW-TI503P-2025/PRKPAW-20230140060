@@ -1,113 +1,187 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const PresensiPage = () => {
-    const [message, setMessage] = useState(null);
-    const [messageType, setMessageType] = useState('');
-    const [hasCheckIn, setHasCheckIn] = useState(false);
+function ReportPage() {
+  const [reports, setReports] = useState([]);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
 
-    // Cek apakah hari ini sudah check-in (agar tombol disable)
-    useEffect(() => {
-        const status = localStorage.getItem('today_status');
-        // Reset status jika tanggal berubah (logika sederhana)
-        const lastDate = localStorage.getItem('last_date');
-        const todayDate = new Date().toLocaleDateString();
+  const fetchReports = async (query) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-        if (lastDate !== todayDate) {
-            localStorage.removeItem('today_status');
-            setHasCheckIn(false);
-        } else if (status === 'checked_in') {
-            setHasCheckIn(true);
-        }
-    }, []);
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-    const handleCheckIn = () => {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString(); // Tgl hari ini
-        const timeStr = now.toLocaleTimeString(); // Jam saat ini
+      const baseUrl = "http://localhost:3001/api/reports/daily";
+      const url = query ? `${baseUrl}?nama=${query}` : baseUrl;
 
-        // 1. Simpan Status Harian (agar tombol jadi abu-abu)
-        localStorage.setItem('today_status', 'checked_in');
-        localStorage.setItem('last_date', dateStr);
-        setHasCheckIn(true);
+      const response = await axios.get(url, config);
+      setReports(response.data.data);
+      setError(null);
+    } catch (err) {
+      setReports([]);
+      setError(
+        err.response ? err.response.data.message : "Gagal mengambil data"
+      );
+    }
+  };
 
-        // 2. SIMPAN RIWAYAT KE "DATABASE" LOCAL STORAGE
-        // Ambil riwayat lama
-        const oldHistory = JSON.parse(localStorage.getItem('riwayat_presensi') || '[]');
-        
-        // Buat data baru
-        const newLog = {
-            id: Date.now(), // ID unik berdasarkan waktu
-            name: "User Anda", // Ganti dengan nama user login jika ada
-            date: dateStr,
-            checkIn: timeStr,
-            checkOut: '-',
-            status: 'Hadir' // Default hadir
-        };
+  useEffect(() => {
+    fetchReports("");
+  }, [navigate]);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchReports(searchTerm);
+  };
 
-        // Gabungkan dan simpan ulang
-        const updatedHistory = [newLog, ...oldHistory];
-        localStorage.setItem('riwayat_presensi', JSON.stringify(updatedHistory));
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    // Ganti backslash (\) jadi slash (/) jika ada (untuk support path Windows)
+    const cleanPath = path.replace(/\\/g, "/");
+    return `http://localhost:3001/${cleanPath}`;
+  };
 
-        setMessage(`Berhasil Check-in pada jam ${timeStr}!`);
-        setMessageType('success');
-    };
+  return (
+    <div className="max-w-6xl mx-auto p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        Laporan Presensi Harian
+      </h1>
 
-    const handleCheckOut = () => {
-        if (!hasCheckIn) {
-            setMessage("Anda belum melakukan Check-in hari ini!");
-            setMessageType('error');
-            return;
-        }
+      <form onSubmit={handleSearchSubmit} className="mb-6 flex space-x-2">
+        <input
+          type="text"
+          placeholder="Cari berdasarkan nama..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+        <button
+          type="submit"
+          className="py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
+        >
+          Cari
+        </button>
+      </form>
 
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString();
+      {error && (
+        <p className="text-red-600 bg-red-100 p-4 rounded-md mb-4">{error}</p>
+      )}
 
-        // UPDATE RIWAYAT TERAKHIR DENGAN JAM CHECK-OUT
-        const oldHistory = JSON.parse(localStorage.getItem('riwayat_presensi') || '[]');
-        
-        if (oldHistory.length > 0) {
-            // Kita anggap data paling atas (index 0) adalah data hari ini
-            oldHistory[0].checkOut = timeStr;
-            localStorage.setItem('riwayat_presensi', JSON.stringify(oldHistory));
-        }
-
-        // Hapus status harian agar besok bisa checkin lagi (simulasi checkout selesai)
-        // localStorage.removeItem('today_status'); 
-        // setHasCheckIn(false); // Opsional: mau langsung reset tombol atau tidak
-
-        setMessage(`Berhasil Check-out pada jam ${timeStr}!`);
-        setMessageType('success');
-    };
-
-    // --- STYLING SAMA SEPERTI SEBELUMNYA ---
-    const styles = {
-        container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f6f8' },
-        card: { background: 'white', padding: '40px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '400px', textAlign: 'center' },
-        title: { marginBottom: '10px', color: '#333' },
-        subtitle: { color: '#666', marginBottom: '30px', fontSize: '14px' },
-        alertBox: { padding: '10px', borderRadius: '5px', marginBottom: '20px', fontSize: '14px', backgroundColor: messageType === 'success' ? '#d4edda' : '#f8d7da', color: messageType === 'success' ? '#155724' : '#721c24', border: messageType === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb' },
-        buttonGroup: { display: 'flex', gap: '10px', justifyContent: 'center' },
-        btnIn: { flex: 1, padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', opacity: hasCheckIn ? 0.6 : 1 },
-        btnOut: { flex: 1, padding: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }
-    };
-
-    return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h2 style={styles.title}>Presensi Harian</h2>
-                <p style={styles.subtitle}>Klik tombol di bawah untuk mencatat kehadiran.</p>
-                {message && <div style={styles.alertBox}>{message}</div>}
-                <div style={styles.buttonGroup}>
-                    <button style={styles.btnIn} onClick={handleCheckIn} disabled={hasCheckIn}>
-                        {hasCheckIn ? 'Sudah Masuk' : 'Check-In'}
-                    </button>
-                    <button style={styles.btnOut} onClick={handleCheckOut}>
-                        Check-Out
-                    </button>
-                </div>
-            </div>
+      {!error && (
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nama
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Check-In
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Check-Out
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Latitude
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Longitude
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Bukti Foto
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {reports.length > 0 ? (
+                reports.map((presensi) => (
+                  <tr key={presensi.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {presensi.user ? presensi.user.nama : "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(presensi.checkIn).toLocaleString("id-ID", {
+                        timeZone: "Asia/Jakarta",
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.checkOut
+                        ? new Date(presensi.checkOut).toLocaleString("id-ID", {
+                            timeZone: "Asia/Jakarta",
+                          })
+                        : "Belum Check-Out"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.latitude || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.longitude || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {presensi.buktiFoto ? (
+                        <img
+                          src={getImageUrl(presensi.buktiFoto)}
+                          alt="Bukti"
+                          className="h-10 w-10 rounded-full object-cover cursor-pointer border hover:border-blue-500"
+                          onClick={() =>
+                            setSelectedImage(getImageUrl(presensi.buktiFoto))
+                          }
+                        />
+                      ) : (
+                        <span className="text-xs text-gray-400">Tidak ada</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="3"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    Tidak ada data yang ditemukan.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-    );
-};
+      )}
 
-export default PresensiPage;
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)} // Klik di luar foto untuk tutup
+        >
+          <div className="relative max-w-3xl w-full">
+            <button
+              className="absolute -top-10 right-0 text-white text-xl font-bold hover:text-gray-300"
+              onClick={() => setSelectedImage(null)}
+            >
+              Tutup [X]
+            </button>
+            <img
+              src={selectedImage}
+              alt="Bukti Full"
+              className="w-full h-auto rounded-lg shadow-2xl border-2 border-white"
+              onClick={(e) => e.stopPropagation()} // Mencegah klik foto menutup modal
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ReportPage;

@@ -35,6 +35,18 @@ module.exports = (sequelize, DataTypes) => {
     checkOut: {
       type: DataTypes.DATE, 
       allowNull: true,      
+    }, 
+    latitude: {
+      type: DataTypes.DECIMAL(10, 8),
+      allowNull: true
+    },
+    longitude: {
+      type: DataTypes.DECIMAL(11, 8),
+      allowNull: true
+    },
+    buktiFoto: {
+      type: DataTypes.STRING, 
+      allowNull: true
     }
   }, {
     sequelize,
