@@ -159,7 +159,7 @@ function Navbar() {
                 Laporan Admin
               </Link>
             )}
-
+            <Link to="/monitoring" className="...">Monitoring Suhu</Link>
             <button
               onClick={handleLogout}
               className="w-full flex items-center justify-center space-x-2 bg-red-500 hover:bg-red-600 text-white py-3 rounded-full font-medium mt-4"
